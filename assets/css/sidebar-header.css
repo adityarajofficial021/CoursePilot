@@ -400,3 +400,31 @@ body.sidebar-collapsed .main-wrapper {
     width: 180px;
   }
 }
+
+@media (max-width: 640px) {
+  .header-date-ticker {
+    display: none;
+  }
+
+  .header-user-info {
+    display: none;
+  }
+
+  .header-search-box {
+    width: 140px;
+  }
+
+  .header-bar {
+    padding: 0 0.85rem;
+  }
+
+  .main-content {
+    padding: 1rem 0.75rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .header-search-box {
+    display: none;
+  }
+}
