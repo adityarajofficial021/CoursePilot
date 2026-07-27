@@ -1,0 +1,1105 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light" data-accent="indigo">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CoursePilot - Student Progress Tracking SaaS</title>
+
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- FontAwesome Icons 6.4 CDN -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <!-- Chart.js 4.4 CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="assets/css/variables.css">
+  <link rel="stylesheet" href="assets/css/base.css">
+  <link rel="stylesheet" href="assets/css/components.css">
+  <link rel="stylesheet" href="assets/css/sidebar-header.css">
+  <link rel="stylesheet" href="assets/css/login.css">
+  <link rel="stylesheet" href="assets/css/pages.css">
+</head>
+<body>
+
+  <!-- SVG Gradient Defs for Progress Ring -->
+  <svg style="width:0;height:0;position:absolute;" aria-hidden="true">
+    <defs>
+      <linearGradient id="progressGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="var(--primary)" />
+        <stop offset="100%" stop-color="var(--secondary)" />
+      </linearGradient>
+    </defs>
+  </svg>
+
+  <!-- ==================== LOGIN SCREEN OVERLAY ==================== -->
+  <div id="login-screen-wrapper" class="login-screen-wrapper">
+    <div class="login-bg-mesh"></div>
+    <div class="login-card">
+      <div class="login-header">
+        <div class="login-logo-icon">
+          <i class="fa-solid fa-graduation-cap"></i>
+        </div>
+        <h1 class="login-title">CoursePilot SaaS</h1>
+        <p class="login-subtitle">Student Progress & Analytics Dashboard</p>
+      </div>
+
+      <!-- Landing Auth View Tabs -->
+      <div class="auth-tab-row">
+        <button type="button" id="tab-login-btn" class="auth-tab-btn active">Sign In</button>
+        <button type="button" id="tab-register-btn" class="auth-tab-btn highlighted">Create Account</button>
+      </div>
+
+      <div id="login-error-alert" class="login-error-alert hidden"></div>
+      <div id="login-success-alert" class="login-success-alert hidden"></div>
+
+      <!-- LOGIN FORM -->
+      <form id="login-form">
+        <div class="form-group">
+          <label class="form-label" for="login-email">Student Email</label>
+          <input type="email" id="login-email" class="form-input" value="adityaraj@gmail.com" placeholder="student@university.edu" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="login-password">Password</label>
+          <div class="password-input-wrapper">
+            <input type="password" id="login-password" class="form-input" value="password123" placeholder="••••••••" required>
+            <i id="toggle-password-btn" class="fa-solid fa-eye toggle-password-btn"></i>
+          </div>
+        </div>
+
+        <div class="login-options-row">
+          <label class="remember-me-checkbox">
+            <input type="checkbox" id="remember-me-checkbox" checked>
+            <span>Remember me</span>
+          </label>
+          <a href="#" id="forgot-password-link" class="forgot-password-link">Forgot Password?</a>
+        </div>
+
+        <button type="submit" id="login-submit-btn" class="btn btn-primary w-full" style="padding: 0.85rem; font-size: 1rem;">
+          <span>Sign In to Dashboard</span>
+          <i class="fa-solid fa-arrow-right"></i>
+        </button>
+
+        <div style="margin-top: 1.25rem; text-align: center; font-size: 0.8rem; color: var(--text-muted);">
+          Demo Login: <strong>adityaraj@gmail.com</strong> / <strong>password123</strong>
+        </div>
+      </form>
+
+      <!-- REGISTRATION FORM (Create Account) -->
+      <form id="register-form" class="hidden">
+        <div class="form-group">
+          <label class="form-label" for="reg-name">Full Name <span class="text-danger">*</span></label>
+          <input type="text" id="reg-name" class="form-input" placeholder="e.g. Sarah Connor" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="reg-email">Email Address <span class="text-danger">*</span></label>
+          <input type="email" id="reg-email" class="form-input" placeholder="sarah@university.edu" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="reg-mobile">Mobile Number <span class="text-muted">(optional)</span></label>
+          <input type="tel" id="reg-mobile" class="form-input" placeholder="+1 (555) 000-0000">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="reg-password">Password <span class="text-danger">*</span></label>
+          <div class="password-input-wrapper">
+            <input type="password" id="reg-password" class="form-input" placeholder="Min 8 characters" required>
+            <i id="toggle-reg-password-btn" class="fa-solid fa-eye toggle-password-btn"></i>
+          </div>
+          <!-- Password Strength Meter Bar -->
+          <div class="strength-meter-container">
+            <div class="strength-meter-bg">
+              <div id="reg-strength-bar" class="strength-meter-fill"></div>
+            </div>
+            <div id="reg-strength-text" class="text-xs text-muted" style="margin-top: 0.2rem;">Min 8 characters required</div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="reg-confirm-password">Confirm Password <span class="text-danger">*</span></label>
+          <div class="password-input-wrapper">
+            <input type="password" id="reg-confirm-password" class="form-input" placeholder="Re-enter password" required>
+            <i id="toggle-reg-confirm-btn" class="fa-solid fa-eye toggle-password-btn"></i>
+          </div>
+          <div id="reg-match-text" class="text-xs text-muted" style="margin-top: 0.2rem;"></div>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 1.25rem;">
+          <label class="remember-me-checkbox">
+            <input type="checkbox" id="reg-terms-checkbox" required>
+            <span class="text-xs">I agree to the Terms of Service & Privacy Policy</span>
+          </label>
+        </div>
+
+        <button type="submit" id="reg-submit-btn" class="btn btn-primary w-full" style="padding: 0.85rem; font-size: 1rem;">
+          <span>Create Student Account</span>
+          <i class="fa-solid fa-user-plus"></i>
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==================== MAIN DASHBOARD LAYOUT SHELL ==================== -->
+  <div id="app-layout" class="hidden">
+
+    <!-- Mobile Drawer Backdrop Overlay -->
+    <div id="mobile-sidebar-overlay" class="mobile-sidebar-overlay"></div>
+
+    <!-- SIDEBAR -->
+    <aside id="sidebar" class="sidebar">
+      <div>
+        <!-- Brand Logo & Collapse Toggle -->
+        <div class="sidebar-logo-wrapper">
+          <div class="brand-logo">
+            <div class="brand-icon">C</div>
+            <span class="sidebar-logo-text">CoursePilot</span>
+          </div>
+          <button id="sidebar-toggle-btn" class="btn-icon" style="width: 32px; height: 32px; font-size: 0.85rem;" title="Toggle Sidebar">
+            <i class="fa-solid fa-chevron-left"></i>
+          </button>
+        </div>
+
+        <!-- Navigation Menu -->
+        <ul class="sidebar-menu">
+          <li class="sidebar-section-title">Navigation</li>
+          <li class="nav-item active" data-view="dashboard">
+            <i class="fa-solid fa-chart-pie"></i>
+            <span class="nav-text">Dashboard</span>
+          </li>
+          <li class="nav-item" data-view="courses">
+            <i class="fa-solid fa-book-open-reader"></i>
+            <span class="nav-text">Courses</span>
+          </li>
+          <li class="nav-item" data-view="grades">
+            <i class="fa-solid fa-chart-line"></i>
+            <span class="nav-text">Grades</span>
+          </li>
+          <li class="nav-item" data-view="attendance">
+            <i class="fa-solid fa-user-check"></i>
+            <span class="nav-text">Attendance</span>
+          </li>
+          <li class="nav-item" data-view="assignments">
+            <i class="fa-solid fa-list-check"></i>
+            <span class="nav-text">Assignments</span>
+          </li>
+          <li class="nav-item" data-view="certificates">
+            <i class="fa-solid fa-award"></i>
+            <span class="nav-text">Certificates</span>
+          </li>
+
+          <li class="sidebar-section-title" style="margin-top: 1rem;">Account</li>
+          <li class="nav-item" data-view="profile">
+            <i class="fa-solid fa-user"></i>
+            <span class="nav-text">Profile</span>
+          </li>
+          <li class="nav-item" data-view="settings">
+            <i class="fa-solid fa-gear"></i>
+            <span class="nav-text">Settings</span>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Sidebar User Footer Card -->
+      <div class="sidebar-user-footer">
+        <div class="user-avatar-pill">
+          <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=300" class="avatar-img header-user-avatar" alt="Avatar">
+          <div class="user-info-text">
+            <div class="user-name header-user-name">Aditya Raj</div>
+            <div class="user-email header-user-email">adityaraj@gmail.com</div>
+          </div>
+        </div>
+        <button class="btn-icon logout-trigger-btn" style="width: 32px; height: 32px; font-size: 0.85rem;" title="Logout">
+          <i class="fa-solid fa-right-from-bracket"></i>
+        </button>
+      </div>
+    </aside>
+
+    <!-- MAIN CONTENT WRAPPER -->
+    <div class="main-wrapper">
+
+      <!-- TOP HEADER -->
+      <header class="top-header">
+        <div class="flex items-center gap-3">
+          <button id="mobile-menu-btn" class="btn-icon hidden" style="display: none;" title="Open Menu">
+            <i class="fa-solid fa-bars"></i>
+          </button>
+
+          <!-- Search Box Trigger -->
+          <div id="header-search-trigger" class="header-search-box">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <span class="header-search-text">Search courses, grades, tasks...</span>
+            <span class="kbd-shortcut">⌘ K</span>
+          </div>
+        </div>
+
+        <div class="header-right-actions">
+          <!-- Realtime Clock Ticker -->
+          <div id="header-date-ticker" class="header-clock-pill">
+            <i class="fa-regular fa-clock text-primary-color"></i>
+            <span>Loading...</span>
+          </div>
+
+          <!-- Quick Theme Toggle Button -->
+          <button id="header-theme-toggle-btn" class="btn-icon" title="Toggle Light/Dark Theme">
+            <i id="header-theme-icon" class="fa-solid fa-moon"></i>
+          </button>
+
+          <!-- Notification Bell Popover -->
+          <div class="popover-wrapper">
+            <button id="notification-bell-btn" class="btn-icon" style="position: relative;" title="Notifications">
+              <i class="fa-regular fa-bell"></i>
+              <span id="notification-badge" class="notification-badge-count hidden">0</span>
+            </button>
+
+            <div id="notification-dropdown" class="popover-dropdown">
+              <div class="popover-header">
+                <span class="font-bold">Notifications</span>
+                <div class="flex items-center gap-2 text-xs">
+                  <a href="#" id="mark-all-read-btn" class="text-primary-color">Mark Read</a>
+                  <span>•</span>
+                  <a href="#" id="clear-all-notifications-btn" class="text-muted">Clear</a>
+                </div>
+              </div>
+              <div id="notification-list-body" class="popover-body">
+                <!-- Dynamic Items -->
+              </div>
+            </div>
+          </div>
+
+          <!-- User Menu Popover -->
+          <div class="popover-wrapper">
+            <div id="header-user-btn" class="flex items-center gap-2" style="cursor: pointer;">
+              <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=300" class="avatar-img header-user-avatar" alt="Avatar" style="width: 38px; height: 38px;">
+              <i class="fa-solid fa-chevron-down text-muted" style="font-size: 0.75rem;"></i>
+            </div>
+
+            <div id="user-menu-dropdown" class="popover-dropdown user-menu-dropdown">
+              <div style="padding: 1rem; border-bottom: 1px solid var(--border-color);">
+                <div class="font-bold header-user-name">Aditya Raj</div>
+                <div class="text-xs text-muted header-user-email">adityaraj@gmail.com</div>
+              </div>
+              <div class="user-menu-item" data-view="profile">
+                <i class="fa-solid fa-user text-muted"></i> Profile Details
+              </div>
+              <div class="user-menu-item" data-view="settings">
+                <i class="fa-solid fa-gear text-muted"></i> Account Settings
+              </div>
+              <div style="border-top: 1px solid var(--border-color);" class="user-menu-item logout-trigger-btn text-danger">
+                <i class="fa-solid fa-right-from-bracket"></i> Log Out
+              </div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- CONTENT VIEWS CONTAINER -->
+      <main class="page-container">
+
+        <!-- ==================== VIEW 1: DASHBOARD ==================== -->
+        <section id="view-dashboard" class="view-section">
+          <!-- Welcome Banner -->
+          <div class="welcome-banner">
+            <div class="welcome-banner-shapes"></div>
+            <h1 id="welcome-greeting" style="font-size: 1.8rem; font-weight: 800; margin-bottom: 0.35rem;">Good Day, Alex! 👋</h1>
+            <p id="welcome-date-subtitle" style="font-size: 0.95rem; opacity: 0.9;">Overview of your academic progress and assignments</p>
+          </div>
+
+          <!-- Statistics Cards Grid -->
+          <div class="grid grid-cols-4" style="margin-bottom: 2rem;">
+            <div class="card stat-card">
+              <div class="stat-icon-wrapper" style="background: var(--primary-light); color: var(--primary);">
+                <i class="fa-solid fa-book-open"></i>
+              </div>
+              <div>
+                <div id="stat-enrolled-courses" class="stat-value">0</div>
+                <div class="stat-label">Enrolled Courses</div>
+              </div>
+            </div>
+
+            <div class="card stat-card">
+              <div class="stat-icon-wrapper" style="background: var(--success-light); color: var(--success);">
+                <i class="fa-solid fa-circle-check"></i>
+              </div>
+              <div>
+                <div id="stat-completed-courses" class="stat-value">0</div>
+                <div class="stat-label">Completed Courses</div>
+              </div>
+            </div>
+
+            <div class="card stat-card">
+              <div class="stat-icon-wrapper" style="background: var(--warning-light); color: var(--warning);">
+                <i class="fa-solid fa-clock-rotate-left"></i>
+              </div>
+              <div>
+                <div id="stat-pending-assignments" class="stat-value">0</div>
+                <div class="stat-label">Pending Assignments</div>
+              </div>
+            </div>
+
+            <div class="card stat-card">
+              <div class="stat-icon-wrapper" style="background: var(--secondary-light); color: var(--secondary);">
+                <i class="fa-solid fa-user-check"></i>
+              </div>
+              <div>
+                <div id="stat-attendance-pct" class="stat-value">0%</div>
+                <div class="stat-label">Overall Attendance</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Dashboard Middle Section: Circular Ring + Enrolled Courses Grid -->
+          <div class="grid grid-cols-3" style="margin-bottom: 2rem;">
+            <!-- Circular Progress Widget -->
+            <div class="card flex flex-col items-center justify-center text-center" style="padding: 2rem;">
+              <h3 class="card-title" style="margin-bottom: 1.5rem;">Overall Learning Completion</h3>
+              <div class="circular-progress-container">
+                <svg class="circular-progress-svg" viewBox="0 0 130 130">
+                  <circle class="circular-progress-bg" cx="65" cy="65" r="58"></circle>
+                  <circle id="dashboard-ring-fill" class="circular-progress-fill" cx="65" cy="65" r="58"></circle>
+                </svg>
+                <div class="circular-progress-text">
+                  <div id="dashboard-ring-pct" class="circular-progress-number">0%</div>
+                  <div class="text-xs text-muted">Syllabus Done</div>
+                </div>
+              </div>
+              <div style="margin-top: 1.5rem;">
+                <span id="dashboard-learning-score" class="badge badge-primary" style="font-size: 0.9rem; padding: 0.4rem 1rem;">945 Points</span>
+              </div>
+            </div>
+
+            <!-- Active Courses Cards Grid -->
+            <div style="grid-column: span 2;">
+              <div class="flex items-center justify-between" style="margin-bottom: 1rem;">
+                <h3 class="card-title">Enrolled Courses Progress</h3>
+                <a href="#" data-view="courses" class="text-sm font-semibold">View All Courses <i class="fa-solid fa-arrow-right"></i></a>
+              </div>
+              <div id="dashboard-courses-grid" class="course-card-grid" style="grid-template-columns: repeat(2, 1fr);">
+                <!-- Dynamic Course Cards -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Grade Analytics Charts & Recent Activity -->
+          <div class="grid grid-cols-3" style="margin-bottom: 2rem;">
+            <!-- Bar Chart: Subject Grades -->
+            <div class="card" style="grid-column: span 2; min-height: 320px;">
+              <div class="card-header">
+                <h3 class="card-title">Subject Performance Analytics</h3>
+                <span class="badge badge-secondary">Current Semester</span>
+              </div>
+              <div style="height: 250px; position: relative;">
+                <canvas id="gradesBarChart"></canvas>
+              </div>
+            </div>
+
+            <!-- Doughnut Chart: Grade Distribution -->
+            <div class="card" style="min-height: 320px;">
+              <div class="card-header">
+                <h3 class="card-title">Grade Distribution</h3>
+              </div>
+              <div style="height: 230px; position: relative;">
+                <canvas id="gradeDoughnutChart"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <!-- GPA Trend Line Chart & Activity Timeline -->
+          <div class="grid grid-cols-3">
+            <!-- Line Chart -->
+            <div class="card" style="grid-column: span 2; min-height: 300px;">
+              <div class="card-header">
+                <h3 class="card-title">Academic GPA Progression</h3>
+                <span class="badge badge-success">3.88 Cumulative CGPA</span>
+              </div>
+              <div style="height: 230px; position: relative;">
+                <canvas id="gpaLineChart"></canvas>
+              </div>
+            </div>
+
+            <!-- Activity Timeline -->
+            <div class="card">
+              <div class="card-header">
+                <h3 class="card-title">Recent Activity</h3>
+              </div>
+              <div id="dashboard-activity-timeline" class="timeline">
+                <!-- Dynamic Items -->
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==================== VIEW 2: COURSES ==================== -->
+        <section id="view-courses" class="view-section hidden">
+          <div class="page-header">
+            <div class="page-title-group">
+              <h1>Course Directory</h1>
+              <p>Explore enrolled courses, track module checklists, and access learning materials.</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <button id="courses-fav-only-btn" class="btn btn-secondary btn-sm">
+                <i class="fa-solid fa-star text-warning"></i> Favourites Only
+              </button>
+              <button id="courses-grid-view-btn" class="btn btn-primary btn-sm">
+                <i class="fa-solid fa-border-all"></i> Grid
+              </button>
+              <button id="courses-list-view-btn" class="btn btn-secondary btn-sm">
+                <i class="fa-solid fa-list"></i> List
+              </button>
+            </div>
+          </div>
+
+          <!-- Toolbar & Filters -->
+          <div class="card flex flex-wrap items-center justify-between gap-3" style="margin-bottom: 1.75rem; padding: 1rem 1.25rem;">
+            <div class="flex items-center gap-3" style="flex: 1; min-width: 240px;">
+              <input type="text" id="courses-search-input" class="form-input" placeholder="Search course name or instructor...">
+            </div>
+
+            <div class="flex items-center gap-3">
+              <select id="courses-category-filter" class="form-select" style="width: 170px;">
+                <option value="all">All Categories</option>
+                <option value="Computer Science">Computer Science</option>
+                <option value="Web Engineering">Web Engineering</option>
+                <option value="Artificial Intelligence">AI & Neural Nets</option>
+                <option value="Design">UI/UX Design</option>
+                <option value="Database">Database Systems</option>
+                <option value="Cloud">Cloud Native</option>
+              </select>
+
+              <select id="courses-status-filter" class="form-select" style="width: 150px;">
+                <option value="all">All Statuses</option>
+                <option value="in-progress">In Progress</option>
+                <option value="completed">Completed</option>
+                <option value="not-started">Not Started</option>
+              </select>
+
+              <select id="courses-sort-filter" class="form-select" style="width: 160px;">
+                <option value="progress-desc">Progress: High to Low</option>
+                <option value="progress-asc">Progress: Low to High</option>
+                <option value="title-asc">Title: A to Z</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Courses Output Display -->
+          <div id="courses-display-container" class="course-card-grid">
+            <!-- Dynamic Grid or List Items -->
+          </div>
+        </section>
+
+        <!-- ==================== VIEW 3: GRADES ==================== -->
+        <section id="view-grades" class="view-section hidden">
+          <div class="page-header">
+            <div class="page-title-group">
+              <h1>Academic Gradebook</h1>
+              <p>Detailed performance breakdown, class ranks, and certified transcript records.</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <button id="grades-export-csv-btn" class="btn btn-secondary btn-sm">
+                <i class="fa-solid fa-file-csv"></i> Export CSV
+              </button>
+              <button id="grades-export-pdf-btn" class="btn btn-secondary btn-sm">
+                <i class="fa-solid fa-file-pdf"></i> Export PDF
+              </button>
+              <button id="grades-print-btn" class="btn btn-primary btn-sm">
+                <i class="fa-solid fa-print"></i> Print Report
+              </button>
+            </div>
+          </div>
+
+          <!-- Grade Summary Cards -->
+          <div class="grid grid-cols-4" style="margin-bottom: 2rem;">
+            <div class="card stat-card">
+              <div class="stat-icon-wrapper" style="background: var(--primary-light); color: var(--primary);">
+                <i class="fa-solid fa-award"></i>
+              </div>
+              <div>
+                <div id="grades-cgpa-val" class="stat-value">3.88</div>
+                <div class="stat-label">Cumulative CGPA</div>
+              </div>
+            </div>
+
+            <div class="card stat-card">
+              <div class="stat-icon-wrapper" style="background: var(--success-light); color: var(--success);">
+                <i class="fa-solid fa-trophy"></i>
+              </div>
+              <div>
+                <div id="grades-rank-val" class="stat-value">#2</div>
+                <div class="stat-label">Department Rank</div>
+              </div>
+            </div>
+
+            <div class="card stat-card">
+              <div class="stat-icon-wrapper" style="background: var(--purple-light); color: var(--purple);">
+                <i class="fa-solid fa-layer-group"></i>
+              </div>
+              <div>
+                <div id="grades-credits-val" class="stat-value">18 Units</div>
+                <div class="stat-label">Total Credits</div>
+              </div>
+            </div>
+
+            <div class="card stat-card">
+              <div class="stat-icon-wrapper" style="background: var(--secondary-light); color: var(--secondary);">
+                <i class="fa-solid fa-chart-column"></i>
+              </div>
+              <div>
+                <div id="grades-avg-pct-val" class="stat-value">91.9%</div>
+                <div class="stat-label">Overall Weighted Avg</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Gradebook Table -->
+          <div class="card" style="padding: 0;">
+            <div class="table-responsive">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Course Name</th>
+                    <th>Quiz (20%)</th>
+                    <th>Assignments (30%)</th>
+                    <th>Midterm (25%)</th>
+                    <th>Final (25%)</th>
+                    <th>Overall %</th>
+                    <th>Grade</th>
+                    <th>Rank</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="grades-table-body">
+                  <!-- Dynamic Rows -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==================== VIEW 4: ATTENDANCE ==================== -->
+        <section id="view-attendance" class="view-section hidden">
+          <div class="page-header">
+            <div class="page-title-group">
+              <h1>Attendance Tracking</h1>
+              <p>Monitor your lecture presence, monthly trends, and submit official leave requests.</p>
+            </div>
+            <button id="attendance-request-leave-btn" class="btn btn-primary">
+              <i class="fa-solid fa-paper-plane"></i> Apply for Leave
+            </button>
+          </div>
+
+          <!-- Attendance Stats Cards -->
+          <div class="grid grid-cols-4" style="margin-bottom: 2rem;">
+            <div class="card stat-card">
+              <div class="stat-icon-wrapper" style="background: var(--success-light); color: var(--success);">
+                <i class="fa-solid fa-user-check"></i>
+              </div>
+              <div>
+                <div id="att-overall-pct" class="stat-value">92%</div>
+                <div class="stat-label">Overall Attendance</div>
+              </div>
+            </div>
+
+            <div class="card stat-card">
+              <div class="stat-icon-wrapper" style="background: var(--primary-light); color: var(--primary);">
+                <i class="fa-solid fa-calendar-check"></i>
+              </div>
+              <div>
+                <div id="att-present-days" class="stat-value">68</div>
+                <div class="stat-label">Days Present</div>
+              </div>
+            </div>
+
+            <div class="card stat-card">
+              <div class="stat-icon-wrapper" style="background: var(--danger-light); color: var(--danger);">
+                <i class="fa-solid fa-user-xmark"></i>
+              </div>
+              <div>
+                <div id="att-absent-days" class="stat-value">4</div>
+                <div class="stat-label">Days Absent</div>
+              </div>
+            </div>
+
+            <div class="card stat-card">
+              <div class="stat-icon-wrapper" style="background: var(--warning-light); color: var(--warning);">
+                <i class="fa-solid fa-hourglass-half"></i>
+              </div>
+              <div>
+                <div id="att-leave-days" class="stat-value">2</div>
+                <div class="stat-label">Approved Leave</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Area Chart + Subject Attendance Table -->
+          <div class="grid grid-cols-3" style="margin-bottom: 2rem;">
+            <div class="card" style="grid-column: span 2; min-height: 320px;">
+              <div class="card-header">
+                <h3 class="card-title">Monthly Attendance Trend</h3>
+              </div>
+              <div style="height: 240px; position: relative;">
+                <canvas id="attendanceAreaChart"></canvas>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header">
+                <h3 class="card-title">Attendance Policy</h3>
+              </div>
+              <div style="font-size: 0.875rem; color: var(--text-secondary); line-height: 1.6;">
+                <p style="margin-bottom: 1rem;"><i class="fa-solid fa-circle-info text-primary-color"></i> Minimum required attendance is <strong>85%</strong> to sit for final semester examinations.</p>
+                <p><i class="fa-solid fa-shield-halved text-success"></i> Medical leave applications must be submitted within 3 days of returning to campus.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Subject-wise Attendance Table -->
+          <div class="card" style="padding: 0;">
+            <div class="card-header" style="padding: 1.25rem 1.5rem 0 1.5rem;">
+              <h3 class="card-title">Subject-wise Attendance Breakdown</h3>
+            </div>
+            <div class="table-responsive" style="border: none;">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Subject Name</th>
+                    <th>Attended Lectures</th>
+                    <th>Total Lectures</th>
+                    <th>Percentage</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="attendance-subject-table-body">
+                  <!-- Dynamic Rows -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==================== VIEW 5: ASSIGNMENTS ==================== -->
+        <section id="view-assignments" class="view-section hidden">
+          <div class="page-header">
+            <div class="page-title-group">
+              <h1>Assignment Manager</h1>
+              <p>Track deadlines, prioritize coursework, and submit projects.</p>
+            </div>
+            <button id="add-assignment-btn" class="btn btn-primary">
+              <i class="fa-solid fa-plus"></i> Create Assignment
+            </button>
+          </div>
+
+          <!-- Toolbar Filters -->
+          <div class="card flex flex-wrap items-center justify-between gap-3" style="margin-bottom: 1.75rem; padding: 1rem 1.25rem;">
+            <div class="flex items-center gap-2">
+              <button class="btn btn-primary btn-sm assignment-tab-btn active" data-tab="all">All Tasks</button>
+              <button class="btn btn-secondary btn-sm assignment-tab-btn" data-tab="pending">Pending</button>
+              <button class="btn btn-secondary btn-sm assignment-tab-btn" data-tab="submitted">Submitted</button>
+              <button class="btn btn-secondary btn-sm assignment-tab-btn" data-tab="graded">Graded</button>
+            </div>
+
+            <div class="flex items-center gap-3">
+              <input type="text" id="assignments-search-input" class="form-input" placeholder="Search assignment title..." style="width: 220px;">
+              <select id="assignments-priority-filter" class="form-select" style="width: 150px;">
+                <option value="all">All Priorities</option>
+                <option value="high">High Priority</option>
+                <option value="medium">Medium Priority</option>
+                <option value="low">Low Priority</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Assignments Output List -->
+          <div id="assignments-list-container" class="grid grid-cols-2">
+            <!-- Dynamic Items -->
+          </div>
+        </section>
+
+        <!-- ==================== VIEW 6: CERTIFICATES ==================== -->
+        <section id="view-certificates" class="view-section hidden">
+          <div class="page-header">
+            <div class="page-title-group">
+              <h1>Earned Certificates</h1>
+              <p>Verified digital certificates and academic credentials.</p>
+            </div>
+          </div>
+
+          <!-- Certificates Grid -->
+          <div id="certificates-grid-container" class="certificates-grid">
+            <!-- Dynamic Cards -->
+          </div>
+        </section>
+
+        <!-- ==================== VIEW 7: PROFILE ==================== -->
+        <section id="view-profile" class="view-section hidden">
+          <div class="page-header">
+            <div class="page-title-group">
+              <h1>Student Profile</h1>
+              <p>Manage your account info, academic details, and public profile presence.</p>
+            </div>
+          </div>
+
+          <form id="profile-edit-form">
+            <div class="grid grid-cols-3">
+              <!-- Avatar Card -->
+              <div class="card flex flex-col items-center text-center" style="padding: 2rem;">
+                <div class="profile-avatar-upload">
+                  <img id="profile-avatar-preview" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=300" alt="Profile">
+                </div>
+                <div class="form-group w-full" style="margin-bottom: 1rem;">
+                  <label class="form-label" style="text-align: left;">Avatar Image URL</label>
+                  <input type="url" id="profile-avatar-url" class="form-input text-xs" placeholder="https://..." value="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=300">
+                </div>
+                <span class="badge badge-primary">Verified Student</span>
+              </div>
+
+              <!-- Main Details Form -->
+              <div class="card" style="grid-column: span 2;">
+                <h3 class="card-title" style="margin-bottom: 1.25rem;">Personal & Academic Details</h3>
+
+                <div class="grid grid-cols-2 gap-4">
+                  <div class="form-group">
+                    <label class="form-label">Full Name</label>
+                    <input type="text" id="profile-name" class="form-input" required>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Student Email</label>
+                    <input type="email" id="profile-email" class="form-input" required>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Phone Number</label>
+                    <input type="text" id="profile-phone" class="form-input">
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">College / University</label>
+                    <input type="text" id="profile-college" class="form-input">
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Department / Major</label>
+                    <input type="text" id="profile-department" class="form-input">
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Current Semester</label>
+                    <input type="text" id="profile-semester" class="form-input">
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Personal Bio</label>
+                  <textarea id="profile-bio" class="form-textarea" placeholder="Tell us about yourself..."></textarea>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Primary Learning Goal</label>
+                  <input type="text" id="profile-learning-goal" class="form-input">
+                </div>
+
+                <h4 style="font-size: 0.95rem; font-weight: 600; margin: 1.25rem 0 0.75rem 0;">Social & Portfolio Links</h4>
+
+                <div class="grid grid-cols-3 gap-3">
+                  <div class="form-group">
+                    <label class="form-label">GitHub</label>
+                    <input type="url" id="profile-github" class="form-input text-xs">
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">LinkedIn</label>
+                    <input type="url" id="profile-linkedin" class="form-input text-xs">
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Twitter</label>
+                    <input type="url" id="profile-twitter" class="form-input text-xs">
+                  </div>
+                </div>
+
+                <div class="flex justify-end" style="margin-top: 1rem;">
+                  <button type="submit" class="btn btn-primary">
+                    <i class="fa-solid fa-floppy-disk"></i> Save Profile Changes
+                  </button>
+                </div>
+              </div>
+            </div>
+          </form>
+        </section>
+
+        <!-- ==================== VIEW 8: SETTINGS ==================== -->
+        <section id="view-settings" class="view-section hidden">
+          <div class="page-header">
+            <div class="page-title-group">
+              <h1>Platform Settings</h1>
+              <p>Customize UI theme modes, accent colors, notifications, and security.</p>
+            </div>
+          </div>
+
+          <form id="settings-form">
+            <!-- Appearance Card -->
+            <div class="card settings-section-card">
+              <h3 class="card-title" style="margin-bottom: 1.25rem;">Theme & Visual Customization</h3>
+
+              <div class="flex items-center justify-between" style="padding: 1rem 0; border-bottom: 1px solid var(--border-color);">
+                <div>
+                  <div class="font-semibold">Dark Mode Theme</div>
+                  <div class="text-xs text-muted">Toggle dark glassmorphism color palette</div>
+                </div>
+                <label style="position: relative; display: inline-block; width: 48px; height: 26px; cursor: pointer;">
+                  <input type="checkbox" id="settings-theme-toggle" style="opacity: 0; width: 0; height: 0;">
+                  <span style="position: absolute; top:0; left:0; right:0; bottom:0; background: var(--border-color); border-radius: 99px; transition: 0.3s;" onclick="this.previousElementSibling.click()"></span>
+                </label>
+              </div>
+
+              <div class="flex items-center justify-between" style="padding: 1rem 0;">
+                <div>
+                  <div class="font-semibold">Primary Accent Color</div>
+                  <div class="text-xs text-muted">Select your favorite primary accent shade</div>
+                </div>
+                <div class="flex items-center gap-3">
+                  <button type="button" class="color-option-btn active" data-accent="indigo" style="background: #4F46E5;"></button>
+                  <button type="button" class="color-option-btn" data-accent="cyan" style="background: #06B6D4;"></button>
+                  <button type="button" class="color-option-btn" data-accent="emerald" style="background: #10B981;"></button>
+                  <button type="button" class="color-option-btn" data-accent="purple" style="background: #8B5CF6;"></button>
+                  <button type="button" class="color-option-btn" data-accent="rose" style="background: #F43F5E;"></button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Preferences & Notifications Card -->
+            <div class="card settings-section-card">
+              <h3 class="card-title" style="margin-bottom: 1.25rem;">Notifications & Preferences</h3>
+
+              <div class="form-group" style="margin-bottom: 1rem;">
+                <label class="form-label">Auto Logout Timeout</label>
+                <select id="setting-auto-logout" class="form-select" style="max-width: 240px;">
+                  <option value="15">15 Minutes</option>
+                  <option value="30" selected>30 Minutes</option>
+                  <option value="60">60 Minutes</option>
+                </select>
+              </div>
+
+              <div class="flex flex-col gap-3" style="margin-top: 1rem;">
+                <label class="flex items-center gap-3" style="cursor: pointer;">
+                  <input type="checkbox" id="setting-email-notif" checked style="accent-color: var(--primary); width: 18px; height: 18px;">
+                  <span>Send email notifications for assignment updates</span>
+                </label>
+                <label class="flex items-center gap-3" style="cursor: pointer;">
+                  <input type="checkbox" id="setting-assign-remind" checked style="accent-color: var(--primary); width: 18px; height: 18px;">
+                  <span>Show assignment deadline popup reminders</span>
+                </label>
+                <label class="flex items-center gap-3" style="cursor: pointer;">
+                  <input type="checkbox" id="setting-att-alert" checked style="accent-color: var(--primary); width: 18px; height: 18px;">
+                  <span>Alert me if attendance drops below 85%</span>
+                </label>
+                <label class="flex items-center gap-3" style="cursor: pointer;">
+                  <input type="checkbox" id="setting-privacy-public" style="accent-color: var(--primary); width: 18px; height: 18px;">
+                  <span>Make student profile public to recruiters</span>
+                </label>
+              </div>
+
+              <div class="flex justify-end" style="margin-top: 1.5rem;">
+                <button type="submit" class="btn btn-primary">
+                  <i class="fa-solid fa-floppy-disk"></i> Save Settings
+                </button>
+              </div>
+            </div>
+
+            <!-- Reset Data Card -->
+            <div class="card settings-section-card" style="border: 1px solid rgba(239, 68, 68, 0.3);">
+              <h3 class="card-title text-danger" style="margin-bottom: 0.5rem;">Danger Zone</h3>
+              <p class="text-xs text-secondary" style="margin-bottom: 1rem;">Resetting local storage will restore all mock courses, assignments, and grades to factory defaults.</p>
+              <button type="button" id="reset-demo-data-btn" class="btn btn-danger btn-sm">
+                <i class="fa-solid fa-rotate-left"></i> Reset Demo Data
+              </button>
+            </div>
+          </form>
+        </section>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- ==================== MODALS ==================== -->
+
+  <!-- 1. Forgot Password Modal -->
+  <div id="forgot-password-modal" class="modal-overlay">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 class="modal-title">Reset Password</h3>
+        <button class="btn-icon" data-close-modal><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <!-- Step 1: Email Request Form -->
+      <form id="forgot-password-form">
+        <p class="text-sm text-secondary" style="margin-bottom: 1rem;">Enter your registered email address to verify your account and reset your password.</p>
+        <div class="form-group">
+          <label class="form-label">Student Email</label>
+          <input type="email" id="reset-email-input" class="form-input" placeholder="student@university.edu" required>
+        </div>
+        <div class="flex justify-end gap-2" style="margin-top: 1.5rem;">
+          <button type="button" class="btn btn-secondary" data-close-modal>Cancel</button>
+          <button type="submit" class="btn btn-primary">Verify Email</button>
+        </div>
+      </form>
+
+      <!-- Step 2: New Password Form -->
+      <form id="reset-password-step2-form" class="hidden">
+        <p class="text-sm text-secondary" style="margin-bottom: 1rem;">Account verified! Create a new secure password for your account.</p>
+        <div class="form-group">
+          <label class="form-label">New Password</label>
+          <input type="password" id="reset-new-password" class="form-input" placeholder="Min 8 characters" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Confirm New Password</label>
+          <input type="password" id="reset-confirm-password" class="form-input" placeholder="Re-enter new password" required>
+        </div>
+        <div class="flex justify-end gap-2" style="margin-top: 1.5rem;">
+          <button type="button" class="btn btn-secondary" data-close-modal>Cancel</button>
+          <button type="submit" class="btn btn-primary">Save New Password</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 2. Global Search Modal -->
+  <div id="global-search-modal" class="modal-overlay">
+    <div class="modal-card search-modal-card">
+      <div class="modal-header">
+        <div class="flex items-center gap-2 w-full">
+          <i class="fa-solid fa-magnifying-glass text-muted"></i>
+          <input type="text" id="global-search-input" class="form-input" placeholder="Type to search courses, assignments, grades..." style="border: none; box-shadow: none;">
+        </div>
+        <button class="btn-icon" data-close-modal><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div id="global-search-results" class="search-results-list">
+        <div style="padding: 2rem; text-align: center; color: var(--text-muted);">
+          Type to search across courses, assignments, grades, and certificates...
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. Course Details Modal -->
+  <div id="course-details-modal" class="modal-overlay">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 class="modal-title">Course Details</h3>
+        <button class="btn-icon" data-close-modal><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="modal-body"></div>
+    </div>
+  </div>
+
+  <!-- 4. Grade Detail Modal -->
+  <div id="grade-detail-modal" class="modal-overlay">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 class="modal-title">Grade Breakdown</h3>
+        <button class="btn-icon" data-close-modal><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="modal-body"></div>
+    </div>
+  </div>
+
+  <!-- 5. Leave Request Modal -->
+  <div id="leave-request-modal" class="modal-overlay">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 class="modal-title">Apply for Leave</h3>
+        <button class="btn-icon" data-close-modal><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <form id="leave-request-form">
+        <div class="form-group">
+          <label class="form-label">Leave Type</label>
+          <select class="form-select">
+            <option>Medical Leave</option>
+            <option>Personal Leave</option>
+            <option>Academic Event / Hackathon</option>
+          </select>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div class="form-group">
+            <label class="form-label">From Date</label>
+            <input type="date" class="form-input" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">To Date</label>
+            <input type="date" class="form-input" required>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Reason / Justification</label>
+          <textarea id="leave-reason-input" class="form-textarea" placeholder="Explain reason..." required></textarea>
+        </div>
+        <div class="flex justify-end gap-2" style="margin-top: 1rem;">
+          <button type="button" class="btn btn-secondary" data-close-modal>Cancel</button>
+          <button type="submit" class="btn btn-primary">Submit Application</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 6. Add Assignment Modal -->
+  <div id="add-assignment-modal" class="modal-overlay">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 class="modal-title">Create New Assignment</h3>
+        <button class="btn-icon" data-close-modal><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <form id="add-assignment-form">
+        <div class="form-group">
+          <label class="form-label">Assignment Title</label>
+          <input type="text" id="new-assign-title" class="form-input" placeholder="e.g. Distributed Consensus Engine" required>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div class="form-group">
+            <label class="form-label">Course</label>
+            <select id="new-assign-course" class="form-select">
+              <option>Advanced Data Structures & Algorithms</option>
+              <option>Modern Full-Stack SaaS Architecture</option>
+              <option>Artificial Intelligence & Neural Networks</option>
+              <option>UI/UX Design Systems</option>
+              <option>Database Management Systems</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Priority</label>
+            <select id="new-assign-priority" class="form-select">
+              <option value="High">High</option>
+              <option value="Medium" selected>Medium</option>
+              <option value="Low">Low</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Due Date</label>
+          <input type="date" id="new-assign-deadline" class="form-input" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Instructions / Description</label>
+          <textarea id="new-assign-desc" class="form-textarea" placeholder="Assignment scope..."></textarea>
+        </div>
+        <div class="flex justify-end gap-2" style="margin-top: 1rem;">
+          <button type="button" class="btn btn-secondary" data-close-modal>Cancel</button>
+          <button type="submit" class="btn btn-primary">Add Assignment</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 7. Certificate View Modal -->
+  <div id="certificate-modal" class="modal-overlay">
+    <div class="modal-card" style="max-width: 750px;">
+      <div class="modal-header">
+        <h3 class="modal-title">Certificate Preview</h3>
+        <button class="btn-icon" data-close-modal><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="modal-body"></div>
+    </div>
+  </div>
+
+  <!-- Main JavaScript App Entry Script -->
+  <script type="module" src="assets/js/app.js"></script>
+</body>
+</html>
