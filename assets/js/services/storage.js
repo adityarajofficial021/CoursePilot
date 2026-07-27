@@ -58,14 +58,12 @@ export const StorageService = {
     users.push(account);
     this.saveUsers(users);
 
-    // Initialize clean student dataset for new user
+    // Initialize student dataset for new user with sample course data
     const newUserDataset = JSON.parse(JSON.stringify(INITIAL_MOCK_DATA));
     newUserDataset.student.id = account.id;
     newUserDataset.student.name = account.name;
     newUserDataset.student.email = account.email;
     newUserDataset.student.phone = account.mobile || '';
-    newUserDataset.assignments = [];
-    newUserDataset.certificates = [];
     newUserDataset.activityFeed = [{
       id: "ACT-WELCOME",
       title: "Account Created",
@@ -96,7 +94,22 @@ export const StorageService = {
       const key = STORAGE_KEYS.DATA_PREFIX + userId;
       const data = localStorage.getItem(key);
       if (data) {
-        return JSON.parse(data);
+        const parsed = JSON.parse(data);
+        let updated = false;
+
+        // Auto-heal: Ensure assignments and certificates are never empty
+        if (!parsed.assignments || parsed.assignments.length === 0) {
+          parsed.assignments = JSON.parse(JSON.stringify(INITIAL_MOCK_DATA.assignments));
+          updated = true;
+        }
+        if (!parsed.certificates || parsed.certificates.length === 0) {
+          parsed.certificates = JSON.parse(JSON.stringify(INITIAL_MOCK_DATA.certificates));
+          updated = true;
+        }
+        if (updated) {
+          this.saveUserData(userId, parsed);
+        }
+        return parsed;
       } else {
         // Fallback: Clone initial mock dataset for user
         const defaultData = JSON.parse(JSON.stringify(INITIAL_MOCK_DATA));
