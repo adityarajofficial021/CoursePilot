@@ -11,7 +11,6 @@ export const INITIAL_MOCK_DATA = {
     semester: "Semester 6",
     bio: "Passionate CS major interested in Full-Stack Web Architecture, Deep Learning, and SaaS Product Engineering.",
     learningGoal: "Master Advanced Distributed Systems & Cloud-Native Architectures before graduation.",
-    avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=300",
     socialLinks: {
       github: "https://github.com/adityaraj",
       linkedin: "https://linkedin.com/in/adityaraj",

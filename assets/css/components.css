@@ -1,5 +1,47 @@
 /* UI Components - Glass Cards, Buttons, Badges, Modals, Toasts, Tables, Progress Indicators */
 
+/* Avatar Name Initials Badges */
+.avatar-initials {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  color: #FFFFFF;
+  font-weight: 700;
+  border-radius: var(--radius-full);
+  text-transform: uppercase;
+  user-select: none;
+  border: 2px solid var(--primary-glow);
+  box-shadow: var(--shadow-sm);
+  flex-shrink: 0;
+}
+
+.avatar-initials-sm {
+  width: 36px;
+  height: 36px;
+  font-size: 0.85rem;
+}
+
+.avatar-initials-md {
+  width: 44px;
+  height: 44px;
+  font-size: 1rem;
+}
+
+.avatar-initials-lg {
+  width: 54px;
+  height: 54px;
+  font-size: 1.2rem;
+}
+
+.avatar-initials-xl {
+  width: 90px;
+  height: 90px;
+  font-size: 2.2rem;
+  border-width: 3px;
+  box-shadow: 0 8px 24px var(--primary-glow);
+}
+
 /* Buttons */
 .btn {
   display: inline-flex;

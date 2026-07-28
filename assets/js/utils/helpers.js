@@ -26,6 +26,20 @@ export const Helpers = {
   },
 
   /**
+   * Generates uppercase name initials from full name
+   * e.g. "Aditya Raj" -> "AR"
+   * e.g. "John Doe" -> "JD"
+   */
+  getInitials(name) {
+    if (!name) return 'ST';
+    const parts = name.trim().split(/\s+/).filter(Boolean);
+    if (parts.length === 1) {
+      return parts[0].substring(0, 2).toUpperCase();
+    }
+    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+  },
+
+  /**
    * Formats time (e.g. "02:45 PM")
    */
   formatTime(dateObj = new Date()) {

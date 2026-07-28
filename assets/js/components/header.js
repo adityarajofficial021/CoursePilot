@@ -63,12 +63,14 @@ export const HeaderComponent = {
   },
 
   updateUserPill(user) {
-    const avatarEls = document.querySelectorAll('.header-user-avatar');
+    const name = user.name || 'Aditya Raj';
+    const initials = Helpers.getInitials(name);
+    const initialsEls = document.querySelectorAll('.header-user-initials, .profile-user-initials');
     const nameEls = document.querySelectorAll('.header-user-name');
     const emailEls = document.querySelectorAll('.header-user-email');
 
-    avatarEls.forEach(el => { if (user.avatar) el.src = user.avatar; });
-    nameEls.forEach(el => { el.textContent = user.name || 'Aditya Raj'; });
+    initialsEls.forEach(el => { el.textContent = initials; });
+    nameEls.forEach(el => { el.textContent = name; });
     emailEls.forEach(el => { el.textContent = user.email || 'adityaraj@gmail.com'; });
   }
 };

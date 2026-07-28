@@ -7,16 +7,6 @@ import { HeaderComponent } from '../components/header.js';
 export const ProfileModule = {
   init() {
     const profileForm = document.getElementById('profile-edit-form');
-    const avatarInput = document.getElementById('profile-avatar-url');
-    const avatarImg = document.getElementById('profile-avatar-preview');
-
-    if (avatarInput && avatarImg) {
-      avatarInput.addEventListener('input', () => {
-        if (avatarInput.value.trim()) {
-          avatarImg.src = avatarInput.value.trim();
-        }
-      });
-    }
 
     if (profileForm) {
       profileForm.addEventListener('submit', (e) => {
@@ -33,7 +23,6 @@ export const ProfileModule = {
           semester: document.getElementById('profile-semester').value.trim(),
           bio: document.getElementById('profile-bio').value.trim(),
           learningGoal: document.getElementById('profile-learning-goal').value.trim(),
-          avatar: document.getElementById('profile-avatar-url').value.trim() || state.student.avatar,
           socialLinks: {
             github: document.getElementById('profile-github').value.trim(),
             linkedin: document.getElementById('profile-linkedin').value.trim(),
@@ -60,8 +49,6 @@ export const ProfileModule = {
     const semIn = document.getElementById('profile-semester');
     const bioIn = document.getElementById('profile-bio');
     const goalIn = document.getElementById('profile-learning-goal');
-    const avatarIn = document.getElementById('profile-avatar-url');
-    const avatarPreview = document.getElementById('profile-avatar-preview');
     const githubIn = document.getElementById('profile-github');
     const linkedinIn = document.getElementById('profile-linkedin');
     const twitterIn = document.getElementById('profile-twitter');
@@ -74,10 +61,10 @@ export const ProfileModule = {
     if (semIn) semIn.value = student.semester || '';
     if (bioIn) bioIn.value = student.bio || '';
     if (goalIn) goalIn.value = student.learningGoal || '';
-    if (avatarIn) avatarIn.value = student.avatar || '';
-    if (avatarPreview && student.avatar) avatarPreview.src = student.avatar;
     if (githubIn) githubIn.value = student.socialLinks?.github || '';
     if (linkedinIn) linkedinIn.value = student.socialLinks?.linkedin || '';
     if (twitterIn) twitterIn.value = student.socialLinks?.twitter || '';
+
+    HeaderComponent.updateUserPill(student);
   }
 };
